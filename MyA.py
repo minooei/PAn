@@ -1,8 +1,10 @@
 import matplotlib.pyplot as plt
-import numpy as np
-# import matplotlib.image as mpimg
 from Tkinter import *
 import tkFileDialog
+import matplotlib.patches as patches
+import matplotlib.path as mpath
+
+from DraggablePoint import DraggablePoint
 
 
 class App:
@@ -20,36 +22,10 @@ class App:
         self.res = Label(frame, text="corners", fg="white")
         self.res.pack(side=BOTTOM)
 
-        self.slogan1 = Button(frame,
-                              text="set1",
-                              command=lambda: self.write_slogan(0))
-        self.slogan1.pack(side=LEFT)
-        self.label[0] = Label(frame, text="1", fg="white")
-        self.label[0].pack(side=LEFT)
-        self.slogan2 = Button(frame,
-                              text="set2",
-                              command=lambda: self.write_slogan(1))
-        self.slogan2.pack(side=LEFT)
-        self.label[1] = Label(frame, text="2", fg="white")
-        self.label[1].pack(side=LEFT)
-        self.slogan3 = Button(frame,
-                              text="set3",
-                              command=lambda: self.write_slogan(2))
-        self.slogan3.pack(side=LEFT)
-        self.label[2] = Label(frame, text="3", fg="white")
-        self.label[2].pack(side=LEFT)
-        self.slogan4 = Button(frame,
-                              text="set4",
-                              command=lambda: self.write_slogan(3))
-        self.slogan4.pack(side=LEFT)
-        self.label[3] = Label(frame, text="4", fg="white")
-        self.label[3].pack(side=LEFT)
-
         self.myplot("/home/mohammad/Documents/software/cv-work/0scan/ds/0/p18.png")
 
-    def write_slogan(self, num):
-        self.fix[num] = self.label[num].cget("text")
-        print (self.fix)
+    def update_corner(self, num, value):
+        self.fix[num] = value
         self.res.config(text=('corners:', self.fix))
 
     def zoom_factory(ax, base_scale=2.):
@@ -92,25 +68,56 @@ class App:
         return zoom_fun
 
     def myplot(self, ipath):
+        Path = mpath.Path
+        path_data = [
+            (Path.MOVETO, [1, 2]),
+            (Path.LINETO, [0, 2]),
+            (Path.LINETO, [0, 3]),
+            (Path.LINETO, [1, 3]),
+            (Path.LINETO, [1, 4]),
+            (Path.LINETO, [2, 4]),
+            (Path.LINETO, [2, 3]),
+            (Path.LINETO, [3, 3]),
+            (Path.LINETO, [3, 2]),
+            (Path.LINETO, [2, 2]),
+            (Path.LINETO, [2, 1]),
+            (Path.LINETO, [1, 1]),
+            (Path.LINETO, [1, 2]),
+            (Path.LINETO, [2, 3]),
+            (Path.LINETO, [2, 2]),
+            (Path.LINETO, [1, 3]),
+            (Path.LINETO, [1, 2]),
+            (Path.CLOSEPOLY, [1, 2])
+        ]
+        codes, verts = zip(*path_data)
+        path = mpath.Path(verts, codes)
         ax = plt.gca()
         fig = plt.gcf()
         f = self.zoom_factory(ax)
         try:
             img = plt.imread(ipath)
             implot = plt.imshow(img)
-            plt.scatter(50, 125, marker='+', color='r', alpha=.8, s=100)
+            ax = fig.add_subplot(111)
+            drs = []
+            circles = [
+                patches.Circle((21, 21), 2, fc='r', alpha=0.2),
+                patches.Circle((51, 21), 2, fc='r', alpha=0.2),
+                patches.Circle((71, 21), 2, fc='r', alpha=0.2),
+                patches.Circle((333, 333), 2, fc='r', alpha=0.2)
+            ]
+            for circ in circles:
+                ax.add_patch(circ)
+                dr = DraggablePoint(circ)
+                dr.connect()
+                drs.append(dr)
             plt.show()
-        except:
+        except Exception:
+            print Exception.message
             pass
 
         def onclick(event):
             if event.xdata != None and event.ydata != None:
-                # print(event.xdata, event.ydata)
-                p = [event.xdata, event.ydata]
-                self.label[0].config(text=p)
-                self.label[1].config(text=p)
-                self.label[2].config(text=p)
-                self.label[3].config(text=p)
+                print(event.xdata, event.ydata)
 
         cid = fig.canvas.mpl_connect('button_press_event', onclick)
         plt.show()
