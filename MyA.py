@@ -5,6 +5,8 @@ import matplotlib.patches as patches
 import matplotlib.path as mpath
 
 from DraggablePoint import DraggablePoint
+from contours import FindContours
+from mypatches import MyCircle
 
 
 class App:
@@ -26,7 +28,7 @@ class App:
         self.lb.bind('<<ListboxSelect>>', self.onselect)
         self.lb.config(width=0, height=0)
         self.lb.pack(side=TOP)
-        self.myplot("/home/mohammad/Documents/software/cv-work/0scan/ds/0/p18.png")
+        # self.myplot("/home/mohammad/Documents/software/cv-work/0scan/ds/0/p56.png")
 
     def onselect(self, evt):
         # Note here that Tkinter passes an event object to onselect()
@@ -107,32 +109,40 @@ class App:
         ax = plt.gca()
         fig = plt.gcf()
         f = self.zoom_factory(ax)
-        try:
-            img = plt.imread(ipath)
-            implot = plt.imshow(img)
-            ax = fig.add_subplot(111)
-            drs = []
-            circles = [
-                patches.Circle((21, 21), 2, fc='r', alpha=0.2),
-                patches.Circle((51, 21), 2, fc='r', alpha=0.2),
-                patches.Circle((71, 21), 2, fc='r', alpha=0.2),
-                patches.Circle((333, 333), 2, fc='r', alpha=0.2)
-            ]
-            for circ in circles:
-                ax.add_patch(circ)
-                dr = DraggablePoint(circ)
-                dr.connect()
-                drs.append(dr)
-            plt.show()
-        except Exception:
-            print Exception.message
-            pass
+        # try:
+        img = plt.imread(ipath)
+        s = img.shape
+        implot = plt.imshow(img, extent=[0, img.shape[1], img.shape[0], 0])
+        f = FindContours(ipath, self.add_points)
+
+        # self.add_points()
+
+        # except Exception:
+        #     print Exception.message
+        #     pass
 
         def onclick(event):
             if event.xdata != None and event.ydata != None:
                 print(event.xdata, event.ydata)
 
         cid = fig.canvas.mpl_connect('button_press_event', onclick)
+        plt.show()
+
+    def add_points(self, cnt):
+        fig = plt.gcf()
+        ax = fig.add_subplot(111)
+        drs = []
+        circles = [
+            MyCircle(cnt[0], 1, 1, fc='r', alpha=0.2),
+            MyCircle(cnt[1], 1, 1, fc='r', alpha=0.2),
+            MyCircle(cnt[2], 1, 1, fc='r', alpha=0.2),
+            MyCircle(cnt[3], 1, 1, fc='r', alpha=0.2)
+        ]
+        for circ in circles:
+            ax.add_patch(circ)
+            dr = DraggablePoint(circ)
+            dr.connect()
+            drs.append(dr)
         plt.show()
 
     def MyMenu(self, master):
@@ -147,7 +157,8 @@ class App:
         file_menu.add_command(label="Exit", command=root.quit)
 
     def browse_for_file(self, master):
-        files = tkFileDialog.askopenfilenames(parent=master, title='Open files')
+        files = tkFileDialog.askopenfilenames(parent=master, title='Open files',
+                                              initialdir='/home/mohammad/Documents/software/cv-work/0scan/ds/0/')
         i = 0
         for f in files:
             self.lb.insert(i, f)
