@@ -2,13 +2,13 @@ class DraggablePoint:
     lock = None  # only one can be animated at a time
 
     def __init__(self, point):
-        print 'init'
+        # print 'init'
         self.point = point
         self.press = None
         self.background = None
 
     def connect(self):
-        print 'connect to all the events we need'
+        # print 'connect to all the events we need'
         self.cidpress = self.point.figure.canvas.mpl_connect('button_press_event', self.on_press)
         self.cidrelease = self.point.figure.canvas.mpl_connect('button_release_event', self.on_release)
         self.cidmotion = self.point.figure.canvas.mpl_connect('motion_notify_event', self.on_motion)
@@ -22,17 +22,17 @@ class DraggablePoint:
         print self.press
         DraggablePoint.lock = self
 
-        print 'draw everything but the selected rectangle and store the pixel buffer'
+        # print 'draw everything but the selected rectangle and store the pixel buffer'
         canvas = self.point.figure.canvas
         axes = self.point.axes
         self.point.set_animated(True)
         canvas.draw()
         self.background = canvas.copy_from_bbox(self.point.axes.bbox)
 
-        print 'now redraw just the rectangle'
+        # print 'now redraw just the rectangle'
         axes.draw_artist(self.point)
 
-        print 'and blit just the redrawn area'
+        # print 'and blit just the redrawn area'
         canvas.blit(axes.bbox)
 
     def on_motion(self, event):
@@ -46,17 +46,17 @@ class DraggablePoint:
 
         canvas = self.point.figure.canvas
         axes = self.point.axes
-        print 'restore the background region'
+        # print 'restore the background region'
         canvas.restore_region(self.background)
 
-        print 'redraw just the current rectangle'
+        # print 'redraw just the current rectangle'
         axes.draw_artist(self.point)
 
-        print 'blit just the redrawn area'
+        # print 'blit just the redrawn area'
         canvas.blit(axes.bbox)
 
     def on_release(self, event):
-        print 'on release we reset the press data'
+        # print 'on release we reset the press data'
         if DraggablePoint.lock is not self:
             return
 
@@ -71,7 +71,7 @@ class DraggablePoint:
         self.point.figure.canvas.draw()
 
     def disconnect(self):
-        print 'disconnect all the stored connection ids'
+        # print 'disconnect all the stored connection ids'
         self.point.figure.canvas.mpl_disconnect(self.cidpress)
         self.point.figure.canvas.mpl_disconnect(self.cidrelease)
         self.point.figure.canvas.mpl_disconnect(self.cidmotion)

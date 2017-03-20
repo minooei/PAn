@@ -22,7 +22,19 @@ class App:
         self.res = Label(frame, text="corners", fg="white")
         self.res.pack(side=BOTTOM)
 
+        self.lb = Listbox(frame, name='lb', fg="white")
+        self.lb.bind('<<ListboxSelect>>', self.onselect)
+        self.lb.config(width=0, height=0)
+        self.lb.pack(side=TOP)
         self.myplot("/home/mohammad/Documents/software/cv-work/0scan/ds/0/p18.png")
+
+    def onselect(self, evt):
+        # Note here that Tkinter passes an event object to onselect()
+        w = evt.widget
+        index = int(w.curselection()[0])
+        value = w.get(index)
+        print 'You selected item %d: "%s"' % (index, value)
+        self.myplot(value)
 
     def update_corner(self, num, value):
         self.fix[num] = value
@@ -91,6 +103,7 @@ class App:
         ]
         codes, verts = zip(*path_data)
         path = mpath.Path(verts, codes)
+        plt.clf()
         ax = plt.gca()
         fig = plt.gcf()
         f = self.zoom_factory(ax)
@@ -134,8 +147,12 @@ class App:
         file_menu.add_command(label="Exit", command=root.quit)
 
     def browse_for_file(self, master):
-        file_name = tkFileDialog.askopenfiles(parent=master, title='Open files')
-        print file_name
+        files = tkFileDialog.askopenfilenames(parent=master, title='Open files')
+        i = 0
+        for f in files:
+            self.lb.insert(i, f)
+            i = i + 1
+        print files
 
 
 root = Tk()
