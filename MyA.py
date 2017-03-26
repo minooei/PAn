@@ -1,13 +1,12 @@
 import matplotlib.pyplot as plt
 from Tkinter import *
 import tkFileDialog
-import matplotlib.patches as patches
 import matplotlib.path as mpath
-
+import matplotlib
+matplotlib.use('TkAgg')
 from DraggablePoint import DraggablePoint
 from contours import FindContours
 from mypatches import MyCircle
-
 
 class App:
     def __init__(self, master):
@@ -29,6 +28,9 @@ class App:
         self.lb.config(width=0, height=0)
         self.lb.pack(side=TOP)
         # self.myplot("/home/mohammad/Documents/software/cv-work/0scan/ds/0/p56.png")
+        plt.clf()
+        self.ax = plt.gca()
+        self.fig = plt.gcf()
 
     def onselect(self, evt):
         # Note here that Tkinter passes an event object to onselect()
@@ -105,27 +107,17 @@ class App:
         ]
         codes, verts = zip(*path_data)
         path = mpath.Path(verts, codes)
-        plt.clf()
-        ax = plt.gca()
-        fig = plt.gcf()
-        f = self.zoom_factory(ax)
-        # try:
+
+        f = self.zoom_factory(self.ax)
+
         img = plt.imread(ipath)
         s = img.shape
         implot = plt.imshow(img, extent=[0, img.shape[1], img.shape[0], 0])
-        f = FindContours(ipath, self.add_points)
-
-        # self.add_points()
-
-        # except Exception:
-        #     print Exception.message
-        #     pass
-
-        def onclick(event):
-            if event.xdata != None and event.ydata != None:
-                print(event.xdata, event.ydata)
-
-        cid = fig.canvas.mpl_connect('button_press_event', onclick)
+        try:
+            f = FindContours(ipath, self.add_points)
+        except Exception:
+            print Exception.message
+            pass
         plt.show()
 
     def add_points(self, cnt):
@@ -165,8 +157,12 @@ class App:
             i = i + 1
         print files
 
+    def change_frame(self, param):
+        pass
+
 
 root = Tk()
+root.wm_title("PAn")
 # menu = App.MyMenu
 app = App(root)
 root.mainloop()
