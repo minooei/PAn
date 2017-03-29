@@ -3,10 +3,13 @@ from Tkinter import *
 import tkFileDialog
 import matplotlib.path as mpath
 import matplotlib
+
 matplotlib.use('TkAgg')
 from DraggablePoint import DraggablePoint
 from contours import FindContours
 from mypatches import MyCircle
+from matplotlib.backend_bases import NavigationToolbar2
+
 
 class App:
     def __init__(self, master):
@@ -31,6 +34,13 @@ class App:
         plt.clf()
         self.ax = plt.gca()
         self.fig = plt.gcf()
+        f = self.zoom_factory(self.ax)
+        # self.fig.canvas.mpl_connect('key_press_event', self.press)
+
+        # def press(*args, **kwargs):
+        #     print args[1].key
+        #     app.change_frame()
+        # print('press')
 
     def onselect(self, evt):
         # Note here that Tkinter passes an event object to onselect()
@@ -84,43 +94,45 @@ class App:
         return zoom_fun
 
     def myplot(self, ipath):
-        Path = mpath.Path
-        path_data = [
-            (Path.MOVETO, [1, 2]),
-            (Path.LINETO, [0, 2]),
-            (Path.LINETO, [0, 3]),
-            (Path.LINETO, [1, 3]),
-            (Path.LINETO, [1, 4]),
-            (Path.LINETO, [2, 4]),
-            (Path.LINETO, [2, 3]),
-            (Path.LINETO, [3, 3]),
-            (Path.LINETO, [3, 2]),
-            (Path.LINETO, [2, 2]),
-            (Path.LINETO, [2, 1]),
-            (Path.LINETO, [1, 1]),
-            (Path.LINETO, [1, 2]),
-            (Path.LINETO, [2, 3]),
-            (Path.LINETO, [2, 2]),
-            (Path.LINETO, [1, 3]),
-            (Path.LINETO, [1, 2]),
-            (Path.CLOSEPOLY, [1, 2])
-        ]
-        codes, verts = zip(*path_data)
-        path = mpath.Path(verts, codes)
-
-        f = self.zoom_factory(self.ax)
-
+        plt.cla()
+        # Path = mpath.Path
+        # path_data = [
+        #     (Path.MOVETO, [1, 2]),
+        #     (Path.LINETO, [0, 2]),
+        #     (Path.LINETO, [0, 3]),
+        #     (Path.LINETO, [1, 3]),
+        #     (Path.LINETO, [1, 4]),
+        #     (Path.LINETO, [2, 4]),
+        #     (Path.LINETO, [2, 3]),
+        #     (Path.LINETO, [3, 3]),
+        #     (Path.LINETO, [3, 2]),
+        #     (Path.LINETO, [2, 2]),
+        #     (Path.LINETO, [2, 1]),
+        #     (Path.LINETO, [1, 1]),
+        #     (Path.LINETO, [1, 2]),
+        #     (Path.LINETO, [2, 3]),
+        #     (Path.LINETO, [2, 2]),
+        #     (Path.LINETO, [1, 3]),
+        #     (Path.LINETO, [1, 2]),
+        #     (Path.CLOSEPOLY, [1, 2])
+        # ]
+        # codes, verts = zip(*path_data)
+        # path = mpath.Path(verts, codes)
         img = plt.imread(ipath)
         s = img.shape
         implot = plt.imshow(img, extent=[0, img.shape[1], img.shape[0], 0])
         try:
-            f = FindContours(ipath, self.add_points)
+            F = FindContours(ipath)
+            cnt = F.find(ipath)
+            self.add_points(cnt)
         except Exception:
             print Exception.message
             pass
         plt.show()
 
+    # @classmethod
     def add_points(self, cnt):
+        print 'trying adding point'
         fig = plt.gcf()
         ax = fig.add_subplot(111)
         drs = []
@@ -157,10 +169,26 @@ class App:
             i = i + 1
         print files
 
-    def change_frame(self, param):
+    @classmethod
+    def change_frame(cls):
+        print 'pass'
         pass
 
 
+def nextImage(self, *args, **kwargs):
+    print 'next'
+    ipath = "/home/mohammad/Documents/software/cv-work/0scan/ds/0/p56.png"
+    app.myplot(ipath)
+
+
+#
+# def prevImage(self, *args, **kwargs):
+#     print 'prev'
+#
+#
+# NavigationToolbar2.back = prevImage
+NavigationToolbar2.forward = nextImage
+global app
 root = Tk()
 root.wm_title("PAn")
 # menu = App.MyMenu

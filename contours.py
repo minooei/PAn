@@ -13,11 +13,11 @@ import numpy as np
 
 
 class FindContours:
-    def __init__(self, filename, cb):
+    def __init__(self, filename ):
 
         self.filename = filename
-        self.cb = cb
-        self.find(filename, cb)
+        # self.cb = cb
+        # self.find(filename )
 
     # https://code.google.com/p/pythonxy/source/browse/src/python/OpenCV/DOC/samples/python2/squares.py?spec=svn.xy-27.cd6bf12fae7ae496d581794b32fd9ac75b4eb366&repo=xy-27&r=cd6bf12fae7ae496d581794b32fd9ac75b4eb366
     def angle_cos(self, p0, p1, p2):
@@ -47,7 +47,7 @@ class FindContours:
                     horizontal_score +
                     vertical_score)
 
-    def find(self, filename, cb):
+    def find(self, filename ):
         img = cv2.imread(filename, )
         img_copy = img.copy()[:, :, ::-1]  # color channel plotting mess http://stackoverflow.com/a/15074748/2256243
         height = img.shape[0]
@@ -102,4 +102,6 @@ class FindContours:
         #     writer.writerow([filename, json.dumps(sorted_squares[0].tolist())])
 
         print sorted_squares[0]
-        cb(sorted_squares[0])
+        # if (cb):
+        #     cb(sorted_squares[0])
+        return sorted_squares[0].tolist()
