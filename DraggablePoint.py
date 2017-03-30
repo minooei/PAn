@@ -1,8 +1,9 @@
 class DraggablePoint:
     lock = None  # only one can be animated at a time
 
-    def __init__(self, point):
+    def __init__(self, point, **kwargs):
         # print 'init'
+        self.cb = kwargs.get("cb", 0)
         self.point = point
         self.press = None
         self.background = None
@@ -59,7 +60,8 @@ class DraggablePoint:
         # print 'on release we reset the press data'
         if DraggablePoint.lock is not self:
             return
-
+        # print self.point.center
+        self.cb(self.point)
         self.press = None
         DraggablePoint.lock = None
 

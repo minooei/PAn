@@ -30,7 +30,7 @@ class App:
         self.lb.bind('<<ListboxSelect>>', self.onselect)
         self.lb.config(width=0, height=0)
         self.lb.pack(side=TOP)
-        # self.myplot("/home/mohammad/Documents/software/cv-work/0scan/ds/0/p56.png")
+
         plt.clf()
         self.ax = plt.gca()
         self.fig = plt.gcf()
@@ -124,30 +124,33 @@ class App:
         try:
             F = FindContours(ipath)
             cnt = F.find(ipath)
-            self.add_points(cnt)
+            name = ipath.split("/")
+            self.addPoints(cnt, name[len(name) - 1])
         except Exception:
             print Exception.message
             pass
         plt.show()
 
-    # @classmethod
-    def add_points(self, cnt):
+    def addPoints(self, cnt, name):
         print 'trying adding point'
         fig = plt.gcf()
         ax = fig.add_subplot(111)
         drs = []
         circles = [
-            MyCircle(cnt[0], 1, 1, fc='r', alpha=0.2),
-            MyCircle(cnt[1], 1, 1, fc='r', alpha=0.2),
-            MyCircle(cnt[2], 1, 1, fc='r', alpha=0.2),
-            MyCircle(cnt[3], 1, 1, fc='r', alpha=0.2)
+            MyCircle(cnt[0], 1, 1, "tl", name, fc='r', alpha=0.2),
+            MyCircle(cnt[1], 1, 1, "bl", name, fc='r', alpha=0.2),
+            MyCircle(cnt[2], 1, 1, "br", name, fc='r', alpha=0.2),
+            MyCircle(cnt[3], 1, 1, "tr", name, fc='r', alpha=0.2)
         ]
         for circ in circles:
             ax.add_patch(circ)
-            dr = DraggablePoint(circ)
+            dr = DraggablePoint(circ, cb=self.onSetPoint)
             dr.connect()
             drs.append(dr)
         plt.show()
+
+    def onSetPoint(self, point):
+        print point
 
     def MyMenu(self, master):
         menu = Menu(master)
@@ -178,9 +181,9 @@ class App:
 def nextImage(self, *args, **kwargs):
     print 'next'
     idx = app.lb.curselection()[0]
-    ln=len(app.lb.get(0,END))
+    ln = len(app.lb.get(0, END))
     print ln
-    if idx < ln-1:
+    if idx < ln - 1:
         idx = idx + 1
     app.lb.selection_clear(0, END)
     app.lb.selection_set(idx)

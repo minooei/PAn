@@ -2,14 +2,16 @@ import matplotlib.patches as patches
 import matplotlib.transforms as transforms
 import matplotlib.path as mpath
 
+
 class MyCircle(patches.Patch):
     def __str__(self):
         return "Ellipse(%s,%s;%sx%s)" % (self.center[0], self.center[1],
                                          self.width, self.height)
 
-    def __init__(self, xy, width, height, angle=0.0, **kwargs):
+    def __init__(self, xy, width, height,corner,name, angle=0.0, **kwargs):
         patches.Patch.__init__(self, **kwargs)
-
+        self.corner = corner
+        self.name = name
         self.center = xy
         self.width, self.height = width, height
         self.angle = angle
@@ -48,19 +50,19 @@ class MyCircle(patches.Patch):
             (Path.LINETO, [-3.5, 1.5]),
             (Path.LINETO, [-1.5, 1.5]),
             (Path.LINETO, [-1.5, 3.5]),
-            (Path.LINETO, [ 1.5, 3.5]),
-            (Path.LINETO, [ 1.5, 1.5]),
-            (Path.LINETO, [3.5,  1.5]),
+            (Path.LINETO, [1.5, 3.5]),
+            (Path.LINETO, [1.5, 1.5]),
+            (Path.LINETO, [3.5, 1.5]),
             (Path.LINETO, [3.5, -1.5]),
-            (Path.LINETO, [ 1.5, -1.5]),
-            (Path.LINETO, [ 1.5, -3.5]),
+            (Path.LINETO, [1.5, -1.5]),
+            (Path.LINETO, [1.5, -3.5]),
             (Path.LINETO, [-1.5, -3.5]),
             (Path.LINETO, [-1.5, -1.5]),
             (Path.CLOSEPOLY, [-1.5, -1.5])
         ]
         codes, verts = zip(*path_data)
-        path = mpath.Path(verts , codes)
-        self._path=path
+        path = mpath.Path(verts, codes)
+        self._path = path
         return self._path
 
     def get_patch_transform(self):
