@@ -177,16 +177,30 @@ class App:
 
 def nextImage(self, *args, **kwargs):
     print 'next'
-    ipath = "/home/mohammad/Documents/software/cv-work/0scan/ds/0/p56.png"
-    app.myplot(ipath)
+    idx = app.lb.curselection()[0]
+    ln=len(app.lb.get(0,END))
+    print ln
+    if idx < ln-1:
+        idx = idx + 1
+    app.lb.selection_clear(0, END)
+    app.lb.selection_set(idx)
+    app.lb.select_set(idx)
+    app.lb.event_generate("<<ListboxSelect>>")
 
 
-#
-# def prevImage(self, *args, **kwargs):
-#     print 'prev'
-#
-#
-# NavigationToolbar2.back = prevImage
+def prevImage(self, *args, **kwargs):
+    print 'prev'
+    idx = app.lb.curselection()[0]
+    print idx
+    if idx > 0:
+        idx = idx - 1
+    app.lb.selection_clear(0, END)
+    app.lb.selection_set(idx)
+    app.lb.select_set(idx)
+    app.lb.event_generate("<<ListboxSelect>>")
+
+
+NavigationToolbar2.back = prevImage
 NavigationToolbar2.forward = nextImage
 global app
 root = Tk()
