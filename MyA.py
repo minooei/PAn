@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from Tkinter import *
 import tkFileDialog
 import matplotlib
-
+from collections import OrderedDict
 from OutputDriver import OutputDriver
 
 matplotlib.use('TkAgg')
@@ -18,7 +18,7 @@ class App:
         self.mm = master
         frame = Frame(master)
         frame.pack(fill=BOTH, expand=YES)
-        self.corners = {}
+        self.corners = OrderedDict()
         self.files = []
         self.menu = self.MyMenu(master)
         self.label = [0, 0, 0, 0]
@@ -139,10 +139,7 @@ class App:
         fig = plt.gcf()
         ax = fig.add_subplot(111)
         drs = []
-        if name in self.corners:
-            pass
-        else:
-            self.corners[name] = {}
+
         crs = ["tl", "bl", "br", "tr"]
         i = 0
         for cr in crs:
@@ -200,7 +197,17 @@ class App:
     def browse_for_file(self, master):
         self.files = tkFileDialog.askopenfilenames(parent=master, title='Open files',
                                                    initialdir='/home/mohammad/Documents/software/cv-work/0scan/ds/0/')
-        self.showFiles()
+        i = 0
+        for f in self.files:
+            self.lb.insert(i, f)
+            i = i + 1
+            name = f.split("/")
+            name = name[len(name) - 1]
+            if name in self.corners:
+                pass
+            else:
+                self.corners[name] = {}
+
     def showFiles(self):
         i = 0
         for f in self.files:
