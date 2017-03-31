@@ -13,7 +13,7 @@ import numpy as np
 
 
 class FindContours:
-    def __init__(self, filename ):
+    def __init__(self, filename):
 
         self.filename = filename
         # self.cb = cb
@@ -47,7 +47,7 @@ class FindContours:
                     horizontal_score +
                     vertical_score)
 
-    def find(self, filename ):
+    def find(self, filename):
         img = cv2.imread(filename, )
         img_copy = img.copy()[:, :, ::-1]  # color channel plotting mess http://stackoverflow.com/a/15074748/2256243
         height = img.shape[0]
@@ -101,7 +101,12 @@ class FindContours:
         #     writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
         #     writer.writerow([filename, json.dumps(sorted_squares[0].tolist())])
 
-        print sorted_squares[0]
+        # print sorted_squares[0]
         # if (cb):
         #     cb(sorted_squares[0])
-        return sorted_squares[0].tolist()
+        if not sorted_squares:
+            print 'not'
+            sorted_squares.append([[260, 47],[253, 225],[373, 237],[382, 60]])
+        else:
+            sorted_squares[0]=sorted_squares[0].tolist()
+        return sorted_squares[0]

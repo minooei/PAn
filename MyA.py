@@ -1,14 +1,16 @@
 import matplotlib.pyplot as plt
 from Tkinter import *
 import tkFileDialog
-import matplotlib.path as mpath
 import matplotlib
+
+from OutputDriver import OutputDriver
 
 matplotlib.use('TkAgg')
 from DraggablePoint import DraggablePoint
 from contours import FindContours
 from mypatches import MyCircle
 from matplotlib.backend_bases import NavigationToolbar2
+import json
 
 
 class App:
@@ -16,6 +18,8 @@ class App:
         self.mm = master
         frame = Frame(master)
         frame.pack(fill=BOTH, expand=YES)
+        self.corners = {}
+        self.files = []
         self.menu = self.MyMenu(master)
         self.label = [0, 0, 0, 0]
         self.fix = [0, 0, 0, 0]
@@ -35,12 +39,11 @@ class App:
         self.ax = plt.gca()
         self.fig = plt.gcf()
         f = self.zoom_factory(self.ax)
-        # self.fig.canvas.mpl_connect('key_press_event', self.press)
 
-        # def press(*args, **kwargs):
-        #     print args[1].key
-        #     app.change_frame()
-        # print('press')
+    #     self.fig.canvas.mpl_connect('key_press_event', self.press)
+    #
+    # def press(*args, **kwargs):
+    #     print args[1].key
 
     def onselect(self, evt):
         # Note here that Tkinter passes an event object to onselect()
@@ -121,14 +124,14 @@ class App:
         img = plt.imread(ipath)
         s = img.shape
         implot = plt.imshow(img, extent=[0, img.shape[1], img.shape[0], 0])
-        try:
-            F = FindContours(ipath)
-            cnt = F.find(ipath)
-            name = ipath.split("/")
-            self.addPoints(cnt, name[len(name) - 1])
-        except Exception:
-            print Exception.message
-            pass
+        # try:
+        F = FindContours(ipath)
+        cnt = F.find(ipath)
+        name = ipath.split("/")
+        self.addPoints(cnt, name[len(name) - 1])
+        # except Exception:
+        #     print Exception.message
+        #     pass
         plt.show()
 
     def addPoints(self, cnt, name):
@@ -136,12 +139,26 @@ class App:
         fig = plt.gcf()
         ax = fig.add_subplot(111)
         drs = []
+        if name in self.corners:
+            pass
+        else:
+            self.corners[name] = {}
+        crs = ["tl", "bl", "br", "tr"]
+        i = 0
+        for cr in crs:
+            if cr in self.corners[name]:
+                pass
+            else:
+                self.corners[name][cr] = cnt[i]
+            i = i + 1
+
         circles = [
-            MyCircle(cnt[0], 1, 1, "tl", name, fc='r', alpha=0.2),
-            MyCircle(cnt[1], 1, 1, "bl", name, fc='r', alpha=0.2),
-            MyCircle(cnt[2], 1, 1, "br", name, fc='r', alpha=0.2),
-            MyCircle(cnt[3], 1, 1, "tr", name, fc='r', alpha=0.2)
+            MyCircle(self.corners[name]["tl"], 2, 2, "tl", name, fc='r', alpha=0.1),
+            MyCircle(self.corners[name]["bl"], 2, 2, "bl", name, fc='g', alpha=0.1),
+            MyCircle(self.corners[name]["br"], 2, 2, "br", name, fc='b', alpha=0.1),
+            MyCircle(self.corners[name]["tr"], 2, 2, "tr", name, fc='m', alpha=0.1)
         ]
+
         for circ in circles:
             ax.add_patch(circ)
             dr = DraggablePoint(circ, cb=self.onSetPoint)
@@ -150,7 +167,23 @@ class App:
         plt.show()
 
     def onSetPoint(self, point):
-        print point
+        self.corners[point.name][point.corner] = point.center
+        print point.corner
+        print self.corners
+
+    def saveProject(self):
+        with open("corners.json", 'w') as fp:
+            json.dump(self.corners, fp, indent=4)
+        with open("files.json", 'w') as fp:
+            json.dump(self.files, fp, indent=4)
+        output = OutputDriver(self.corners)
+        output.exportToFile()
+    def loadProject(self):
+        with open("corners.json", 'r') as fp:
+            self.corners = json.load(fp)
+        with open("files.json", 'r') as fp:
+            self.files = json.load(fp)
+        self.showFiles()
 
     def MyMenu(self, master):
         menu = Menu(master)
@@ -159,23 +192,20 @@ class App:
         file_menu = Menu(menu)
         menu.add_cascade(label="File", menu=file_menu)
         file_menu.add_command(label="open files", command=lambda: self.browse_for_file(master))
-        file_menu.add_command(label="save", command=root.quit)
+        file_menu.add_command(label="save project", command=lambda: self.saveProject())
+        file_menu.add_command(label="load project", command=lambda: self.loadProject())
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=root.quit)
 
     def browse_for_file(self, master):
-        files = tkFileDialog.askopenfilenames(parent=master, title='Open files',
-                                              initialdir='/home/mohammad/Documents/software/cv-work/0scan/ds/0/')
+        self.files = tkFileDialog.askopenfilenames(parent=master, title='Open files',
+                                                   initialdir='/home/mohammad/Documents/software/cv-work/0scan/ds/0/')
+        self.showFiles()
+    def showFiles(self):
         i = 0
-        for f in files:
+        for f in self.files:
             self.lb.insert(i, f)
             i = i + 1
-        print files
-
-    @classmethod
-    def change_frame(cls):
-        print 'pass'
-        pass
 
 
 def nextImage(self, *args, **kwargs):
@@ -207,6 +237,7 @@ NavigationToolbar2.back = prevImage
 NavigationToolbar2.forward = nextImage
 global app
 root = Tk()
+root.minsize(300, 300)
 root.wm_title("PAn")
 # menu = App.MyMenu
 app = App(root)
