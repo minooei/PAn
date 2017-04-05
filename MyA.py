@@ -12,6 +12,7 @@ from mypatches import MyCircle
 from matplotlib.backend_bases import NavigationToolbar2
 import json
 
+sys.setrecursionlimit(10000)
 
 class App:
     def __init__(self, master):
@@ -20,6 +21,7 @@ class App:
         frame.pack(fill=BOTH, expand=YES)
         self.corners = OrderedDict()
         self.files = []
+        self.pfiles = ['corners.json','files.json']
         self.menu = self.MyMenu(master)
         self.label = [0, 0, 0, 0]
         self.fix = [0, 0, 0, 0]
@@ -169,16 +171,23 @@ class App:
         print self.corners
 
     def saveProject(self):
-        with open("corners.json", 'w') as fp:
+        with open(self.pfiles[0], 'w') as fp:
             json.dump(self.corners, fp, indent=4)
-        with open("files.json", 'w') as fp:
+        with open(self.pfiles[1], 'w') as fp:
             json.dump(self.files, fp, indent=4)
         output = OutputDriver(self.corners)
         output.exportToFile()
-    def loadProject(self):
-        with open("corners.json", 'r') as fp:
+
+    def loadProject(self, master):
+        self.pfiles = tkFileDialog.askopenfilenames(parent=master, title='Open files',
+                                                    initialdir='/home/mohammad/Documents/software/cv-work/0scan/ds/0/')
+        temp=self.pfiles[0]
+        if "corners.json" in self.pfiles[1]:
+            self.pfiles[0]=self.pfiles[1]
+            self.pfiles[1]=temp
+        with open(self.pfiles[0], 'r') as fp:
             self.corners = json.load(fp)
-        with open("files.json", 'r') as fp:
+        with open(self.pfiles[1], 'r') as fp:
             self.files = json.load(fp)
         self.showFiles()
 
@@ -190,7 +199,7 @@ class App:
         menu.add_cascade(label="File", menu=file_menu)
         file_menu.add_command(label="open files", command=lambda: self.browse_for_file(master))
         file_menu.add_command(label="save project", command=lambda: self.saveProject())
-        file_menu.add_command(label="load project", command=lambda: self.loadProject())
+        file_menu.add_command(label="load project", command=lambda: self.loadProject(master))
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=root.quit)
 
