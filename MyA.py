@@ -11,17 +11,21 @@ from contours import FindContours
 from mypatches import MyCircle
 from matplotlib.backend_bases import NavigationToolbar2
 import json
+import matplotlib.lines as mlines
 
 sys.setrecursionlimit(10000)
+
 
 class App:
     def __init__(self, master):
         self.mm = master
         frame = Frame(master)
         frame.pack(fill=BOTH, expand=YES)
+        self.current = ''
+        self.polygon = ''
         self.corners = OrderedDict()
         self.files = []
-        self.pfiles = ['corners.json','files.json']
+        self.pfiles = ['corners.json', 'files.json']
         self.menu = self.MyMenu(master)
         self.label = [0, 0, 0, 0]
         self.fix = [0, 0, 0, 0]
@@ -130,6 +134,7 @@ class App:
         F = FindContours(ipath)
         cnt = F.find(ipath)
         name = ipath.split("/")
+        self.current = name[len(name) - 1]
         self.addPoints(cnt, name[len(name) - 1])
         # except Exception:
         #     print Exception.message
@@ -138,6 +143,7 @@ class App:
 
     def addPoints(self, cnt, name):
         print 'trying adding point'
+        print cnt
         fig = plt.gcf()
         ax = fig.add_subplot(111)
         drs = []
@@ -157,16 +163,24 @@ class App:
             MyCircle(self.corners[name]["br"], 2, 2, "br", name, fc='b', alpha=0.1),
             MyCircle(self.corners[name]["tr"], 2, 2, "tr", name, fc='m', alpha=0.1)
         ]
-
+        xs = []
+        ys = []
         for circ in circles:
             ax.add_patch(circ)
             dr = DraggablePoint(circ, cb=self.onSetPoint)
             dr.connect()
             drs.append(dr)
+
+        self.polygon = plt.Polygon(cnt, fill=None)
+        ax.add_patch(self.polygon)
         plt.show()
 
     def onSetPoint(self, point):
         self.corners[point.name][point.corner] = point.center
+        self.polygon.remove()
+        self.polygon = plt.Polygon([self.corners[self.current]["tl"], self.corners[self.current]["bl"],
+                                   self.corners[self.current]["br"], self.corners[self.current]["tr"]], fill=None)
+        self.ax.add_patch(self.polygon)
         print point.corner
         print self.corners
 
@@ -181,10 +195,10 @@ class App:
     def loadProject(self, master):
         self.pfiles = tkFileDialog.askopenfilenames(parent=master, title='Open files',
                                                     initialdir='/home/mohammad/Documents/software/cv-work/0scan/ds/0/')
-        temp=self.pfiles[0]
+        temp = self.pfiles[0]
         if "corners.json" in self.pfiles[1]:
-            self.pfiles[0]=self.pfiles[1]
-            self.pfiles[1]=temp
+            self.pfiles[0] = self.pfiles[1]
+            self.pfiles[1] = temp
         with open(self.pfiles[0], 'r') as fp:
             self.corners = json.load(fp)
         with open(self.pfiles[1], 'r') as fp:

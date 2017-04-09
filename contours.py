@@ -7,7 +7,6 @@
 import csv
 import json
 import math
-
 import cv2
 import numpy as np
 
@@ -46,6 +45,22 @@ class FindContours:
                     cv2.contourArea(formatted) / (width * height) +
                     horizontal_score +
                     vertical_score)
+
+    def sortRect(self, coordinates):
+        coordinates = sorted(coordinates, key=lambda coordinates: coordinates[0])
+
+        p1 = coordinates[0]
+        p2 = coordinates[1]
+        p3 = coordinates[2]
+        p4 = coordinates[3]
+
+        if p1[1] > p2[1]:
+            p1, p2 = p2, p1
+        if p3[1] < p4[1]:
+            p3, p4 = p4, p3
+        coordinates = [p1, p2, p3, p4]
+
+        return coordinates
 
     def find(self, filename):
         img = cv2.imread(filename, )
@@ -104,9 +119,13 @@ class FindContours:
         # print sorted_squares[0]
         # if (cb):
         #     cb(sorted_squares[0])
+
         if not sorted_squares:
             print 'not'
-            sorted_squares.append([[260, 47],[253, 225],[373, 237],[382, 60]])
+            sorted_squares.append([[260, 47], [253, 225], [373, 237], [382, 60]])
+            l = sorted_squares[0]
         else:
-            sorted_squares[0]=sorted_squares[0].tolist()
-        return sorted_squares[0]
+            sorted_squares[0] = sorted_squares[0].tolist()
+            l = sorted_squares[0]
+            l = self.sortRect(l)
+        return l
