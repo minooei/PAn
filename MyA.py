@@ -1,6 +1,13 @@
 import matplotlib.pyplot as plt
-from Tkinter import *
-import tkFileDialog
+try:
+    # for Python2
+    from Tkinter import *   ## notice capitalized T in Tkinter 
+except ImportError:
+    # for Python3
+    from tkinter import * 
+# from Tkinter import *
+import tkinter.filedialog as tkFileDialog
+# import tkFileDialog
 import matplotlib
 from collections import OrderedDict
 from OutputDriver import OutputDriver
@@ -56,7 +63,7 @@ class App:
         w = evt.widget
         index = int(w.curselection()[0])
         value = w.get(index)
-        print 'You selected item %d: "%s"' % (index, value)
+        print ('You selected item %d: "%s"' % (index, value))
         self.myplot(value)
 
     def update_corner(self, num, value):
@@ -87,7 +94,7 @@ class App:
             else:
                 # deal with something that should never happen
                 scale_factor = 1
-                print event.button
+                print (event.button)
             # set new limits
             ax.set_xlim([xdata - cur_xrange * scale_factor,
                          xdata + cur_xrange * scale_factor])
@@ -142,8 +149,8 @@ class App:
         plt.show()
 
     def addPoints(self, cnt, name):
-        print 'trying adding point'
-        print cnt
+        print ('trying adding point')
+        print (cnt)
         fig = plt.gcf()
         ax = fig.add_subplot(111)
         drs = []
@@ -181,8 +188,8 @@ class App:
         self.polygon = plt.Polygon([self.corners[self.current]["tl"], self.corners[self.current]["bl"],
                                    self.corners[self.current]["br"], self.corners[self.current]["tr"]], fill=None)
         self.ax.add_patch(self.polygon)
-        print point.corner
-        print self.corners
+        print (point.corner)
+        print (self.corners)
 
     def saveProject(self):
         with open(self.pfiles[0], 'w') as fp:
@@ -239,10 +246,10 @@ class App:
 
 
 def nextImage(self, *args, **kwargs):
-    print 'next'
+    print ('next')
     idx = app.lb.curselection()[0]
     ln = len(app.lb.get(0, END))
-    print ln
+    print (ln)
     if idx < ln - 1:
         idx = idx + 1
     app.lb.selection_clear(0, END)
@@ -252,9 +259,9 @@ def nextImage(self, *args, **kwargs):
 
 
 def prevImage(self, *args, **kwargs):
-    print 'prev'
+    print ('prev')
     idx = app.lb.curselection()[0]
-    print idx
+    print (idx)
     if idx > 0:
         idx = idx - 1
     app.lb.selection_clear(0, END)

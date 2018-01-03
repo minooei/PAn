@@ -12,7 +12,7 @@ class OutputDriver(object):
         self.software_version = "1"
         # self.segmentation_results = []
         self.corners = corners
-        self.xmlfile = "/home/mohammad/Documents/software/cv-work/0scan/gt.xml"
+        self.xmlfile = "/home/mohammad/software/sources/sync/0scan/PAn/gt.xml"
 
     def exportToFile(self):
         with open(self.xmlfile, "w") as out:

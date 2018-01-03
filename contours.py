@@ -81,14 +81,14 @@ class FindContours:
             # Shrinking followed by expanding can be used for removing isolated noise pixels
             # another way to think of it is "enlarging the background"
             # http://www.cs.umb.edu/~marc/cs675/cvs09-12.pdf
-            small = cv2.pyrDown(blured, dstsize=(width / 2, height / 2))
+            small = cv2.pyrDown(blured, dstsize=(width // 2, height // 2))
             oversized = cv2.pyrUp(small, dstsize=(width, height))
 
             # after seeing utility of later thresholds (non 0 threshold results)
             # try instead to loop through and change thresholds in the canny filter
             # also might be interesting to store the contours in different arrays for display to color them according
             # to the channel that they came from
-            for thrs in xrange(0, 255, 26):
+            for thrs in  range(0, 255, 26):
                 if thrs == 0:
                     edges = cv2.Canny(oversized, threshold1=0, threshold2=50, apertureSize=3)
                     next = cv2.dilate(src=edges, kernel=kernel, anchor=(-1, -1))
@@ -106,7 +106,7 @@ class FindContours:
                     if len(cnt) == 4 and cv2.contourArea(cnt) > 1000 and cv2.isContourConvex(cnt):
                         cnt = cnt.reshape(-1, 2)
                         max_cos = np.max(
-                            [self.angle_cos(cnt[i], cnt[(i + 1) % 4], cnt[(i + 2) % 4]) for i in xrange(4)])
+                            [self.angle_cos(cnt[i], cnt[(i + 1) % 4], cnt[(i + 2) % 4]) for i in  range(4)])
                         if max_cos < 0.1:
                             squares.append(cnt)
 
@@ -121,7 +121,7 @@ class FindContours:
         #     cb(sorted_squares[0])
 
         if not sorted_squares:
-            print 'not'
+            print ('not')
             sorted_squares.append([[260, 47], [253, 225], [373, 237], [382, 60]])
             l = sorted_squares[0]
         else:

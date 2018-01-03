@@ -20,7 +20,7 @@ class DraggablePoint:
         contains, attrd = self.point.contains(event)
         if not contains: return
         self.press = (self.point.center), event.xdata, event.ydata
-        print self.press
+        print (self.press)
         DraggablePoint.lock = self
 
         # print 'draw everything but the selected rectangle and store the pixel buffer'
