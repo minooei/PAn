@@ -1,13 +1,13 @@
 import matplotlib.pyplot as plt
+
 try:
     # for Python2
-    from Tkinter import *   ## notice capitalized T in Tkinter 
+    from Tkinter import *
+    import tkFileDialog
 except ImportError:
     # for Python3
-    from tkinter import * 
-# from Tkinter import *
-import tkinter.filedialog as tkFileDialog
-# import tkFileDialog
+    from tkinter import *
+    import tkinter.filedialog as tkFileDialog
 import matplotlib
 from collections import OrderedDict
 from OutputDriver import OutputDriver
@@ -63,7 +63,7 @@ class App:
         w = evt.widget
         index = int(w.curselection()[0])
         value = w.get(index)
-        print ('You selected item %d: "%s"' % (index, value))
+        print('You selected item %d: "%s"' % (index, value))
         self.myplot(value)
 
     def update_corner(self, num, value):
@@ -94,7 +94,7 @@ class App:
             else:
                 # deal with something that should never happen
                 scale_factor = 1
-                print (event.button)
+                print(event.button)
             # set new limits
             ax.set_xlim([xdata - cur_xrange * scale_factor,
                          xdata + cur_xrange * scale_factor])
@@ -138,8 +138,9 @@ class App:
         s = img.shape
         implot = plt.imshow(img, extent=[0, img.shape[1], img.shape[0], 0])
         # try:
-        F = FindContours(ipath)
-        cnt = F.find(ipath)
+
+
+        cnt = self.getCnt(ipath)
         name = ipath.split("/")
         self.current = name[len(name) - 1]
         self.addPoints(cnt, name[len(name) - 1])
@@ -149,8 +150,8 @@ class App:
         plt.show()
 
     def addPoints(self, cnt, name):
-        print ('trying adding point')
-        print (cnt)
+        print('trying adding point')
+        print(cnt)
         fig = plt.gcf()
         ax = fig.add_subplot(111)
         drs = []
@@ -186,10 +187,10 @@ class App:
         self.corners[point.name][point.corner] = point.center
         self.polygon.remove()
         self.polygon = plt.Polygon([self.corners[self.current]["tl"], self.corners[self.current]["bl"],
-                                   self.corners[self.current]["br"], self.corners[self.current]["tr"]], fill=None)
+                                    self.corners[self.current]["br"], self.corners[self.current]["tr"]], fill=None)
         self.ax.add_patch(self.polygon)
-        print (point.corner)
-        print (self.corners)
+        print(point.corner)
+        print(self.corners)
 
     def saveProject(self):
         with open(self.pfiles[0], 'w') as fp:
@@ -226,7 +227,7 @@ class App:
 
     def browse_for_file(self, master):
         self.files = tkFileDialog.askopenfilenames(parent=master, title='Open files',
-                                                   initialdir='/home/mohammad/Documents/software/cv-work/0scan/ds/0/')
+                                                   initialdir='/home/mohammad/software/sources/sync/0scan/ds/0/')
         i = 0
         for f in self.files:
             self.lb.insert(i, f)
@@ -244,12 +245,30 @@ class App:
             self.lb.insert(i, f)
             i = i + 1
 
+    def getCnt(self, ipath):
+        name = ipath.split("/")
+        name = name[len(name) - 1]
+        crs = ["tl", "bl", "br", "tr"]
+        cnt = []
+        i = 0
+        try:
+            for cr in crs:
+                if cr in self.corners[name]:
+                    cnt.append(self.corners[name][cr])
+                    i = i + 1
+        except Exception:
+            print("exception")
+        if i < 3:
+            F = FindContours(ipath)
+            cnt = F.find(ipath)
+        return cnt
+
 
 def nextImage(self, *args, **kwargs):
-    print ('next')
+    print('next')
     idx = app.lb.curselection()[0]
     ln = len(app.lb.get(0, END))
-    print (ln)
+    print(ln)
     if idx < ln - 1:
         idx = idx + 1
     app.lb.selection_clear(0, END)
@@ -259,9 +278,9 @@ def nextImage(self, *args, **kwargs):
 
 
 def prevImage(self, *args, **kwargs):
-    print ('prev')
+    print('prev')
     idx = app.lb.curselection()[0]
-    print (idx)
+    print(idx)
     if idx > 0:
         idx = idx - 1
     app.lb.selection_clear(0, END)
