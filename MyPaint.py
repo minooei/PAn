@@ -73,16 +73,17 @@ class App:
         self.img = cv2.imread(ipath)
         height, width = self.img.shape[:2]
 
-        self.mask = np.zeros((height, width, 3), np.uint8)
+        self.mask = np.zeros((height, width))
 
         cv2.namedWindow('image')
         cv2.setMouseCallback('image', self.draw_circle)
         while (1):
             cv2.imshow('image', self.img)
             k = cv2.waitKey(1) & 0xFF
-            if k == 27:
+            if k == ord('q'):
                 break
         cv2.destroyAllWindows()
+        cv2.imwrite("mask.png", self.mask)
 
     def saveProject(self):
         with open(self.pfiles[0], 'w') as fp:
@@ -144,17 +145,38 @@ class App:
             # cv2.circle(self.img, (x, y), 5, (55, 55, 0), -1)
         elif event == cv2.EVENT_MOUSEMOVE:
             if self.drawing:
-                cv2.line(self.mask, (self.ix, self.iy), (x, y), (255, 255, 255), 5)
+                cv2.line(self.mask, (self.ix, self.iy), (x, y), (255), 5)
                 cv2.line(self.img, (self.ix, self.iy), (x, y), (255, 255, 255), 5)
                 self.ix, self.iy = x, y
                 # cv2.circle(self.img, (x, y), 5, (0, 255, 0), -1)
         elif event == cv2.EVENT_LBUTTONUP:
             self.drawing = False
             # cv2.circle(self.img, (x, y), 5, (0, 0, 255), -1)
-            cv2.line(self.mask, (self.ix, self.iy), (x, y), (255, 255, 255), 5)
+            cv2.line(self.mask, (self.ix, self.iy), (x, y), (255), 5)
             cv2.line(self.img, (self.ix, self.iy), (x, y), (255, 255, 255), 5)
 
-            cv2.imwrite("mask.png", self.mask)
+        if event == cv2.EVENT_RBUTTONUP:
+            self.mask[y,x]=124
+            self.img[y,x,:] = (0,0,255)
+
+
+            m,n = self.img.shape[:2]
+
+            flag = True
+            offset = 1
+            while flag:
+                flag = False
+                for i in range(y-offset,y+offset+1):
+                    for j in range(x-offset,x+offset+1):
+                        if   i >= 0 and i < m-1 and j >= 0 and j < n-1 and self.mask[i,j] == 0:
+                            if self.mask[i-1,j] == 124 or self.mask[i+1,j] == 124 or self.mask[i,j-1] == 124 or self.mask[i,j+1] == 124:
+                                self.mask[i,j] =124
+                                self.img[i, j, :] = (0, 0, 255)
+                                flag = True
+                offset = offset+1
+
+
+
 
 
 global app
